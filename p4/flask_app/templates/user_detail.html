@@ -1,0 +1,71 @@
+{% extends "header.html" %} {% block content %}
+{% if error %}
+    <b class="text-red-400" role="alert">
+        {{ error }}
+    </b>
+{% endif %}
+<div class="container mx-auto w-full md:w-2/3 lg:w-1/3">
+    {# User's Profile Picture #}
+    <img class="rounded-2xl" src="data:image/png;base64,{{image}}" alt="image">
+    <!-- {# TODO: Indicate which user's reviews we're looking at #} -->
+    <h1> {{ username }}'s Reviews </h1>
+
+    <!-- Followers, Following, and Favorites Summary -->
+    <div class="my-4">
+        <p><b>Followers:</b> {{ user.followers|length }}</p>
+        <p><b>Following:</b> {{ user.following|length }}</p>
+        <p><b>Favorite Movies:</b> {{ user.favorite_movies|length }}</p>
+    </div>
+
+    <!-- Optional: Display Favorite Movies if you want -->
+    {% if user.favorite_movies %}
+    <h2 class="text-xl font-bold mt-4">Favorite Movies</h2>
+    <ul class="list-disc list-inside">
+        {% for movie_id in user.favorite_movies %}
+        <li>{{ movie_id }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <!-- Follow/Unfollow button logic goes here -->
+    {% if current_user.is_authenticated and current_user.username != username %}
+        {% if already_following %}
+            <!-- Show Unfollow Button -->
+            <form method="POST" action="{{ url_for('users.unfollow', username=username) }}">
+                {{ form.csrf_token }}
+                <button type="submit">Unfollow {{ username }}</button>
+            </form>
+        {% else %}
+            <!-- Show Follow Button -->
+            <form method="POST" action="{{ url_for('users.follow', username=username) }}">
+                {{ form.csrf_token }}
+                <button type="submit">Follow {{ username }}</button>
+            </form>
+        {% endif %}
+    {% endif %}
+<!-- </div> -->
+
+    <p> Number of reviews: {{ user_reviews | length }}</p>
+</div>
+<div class="container mx-auto w-full md:w-2/3 lg:w-1/3">
+    <!-- {# TODO: Show all reviews made by the user #} -->
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Movie</th>
+                <th>Content</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for review in user_reviews %}
+            <tr>
+                <td>{{ review.date }}</td>
+                <td>{{ review.movie_title }}</td>
+                <td>{{ review.content }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
